@@ -5,6 +5,6 @@
 
 
 ### ToDo LIST
-#### Clean up code - ####DONE
-#### Improve ask questions functionality - ####HaveToDo
-#### Set up threads - ####DONE
+#### Clean up code - DONE
+#### Improve ask questions functionality - HaveToDo
+#### Set up threads - DONE
