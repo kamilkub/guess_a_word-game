@@ -5,10 +5,7 @@ import org.guess.wordgame.module.enums.Questions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class GuesserModule implements Runnable {
 
@@ -24,6 +21,8 @@ public class GuesserModule implements Runnable {
 
     private static int letterCounter = randomQuestionCounter;
 
+    private static List<Integer> availKeys = new ArrayList<>();
+
     public GuesserModule () {
         word.put(1, '_');
     }
@@ -31,7 +30,7 @@ public class GuesserModule implements Runnable {
 
     public static void buildUpWord() {
         Scanner scanner = new Scanner(System.in);
-        logger.warn("How many letters your word has? Be specific * only 4 - 9 are available");
+        logger.warn(">> How many letters your word has? Be specific * only 4 - 9 are available << accepts answers [YES] 'y' || [NO] 'n' ");
         int wordSize = scanner.nextInt();
 
         if(wordSize < 4 || wordSize > 9){
@@ -44,27 +43,40 @@ public class GuesserModule implements Runnable {
         for(int i = 0; i < wordLength.getLength(); i++) {
             word.put(i, '_');
         }
+        word.forEach((key, value) -> {
+            if(word.get(key).equals('_')){
+                availKeys.add(key);
+            }
+        });
         word.forEach((key, a) -> System.out.print(" "+a));
         System.out.println();
     }
 
     public static void askerMethod() {
+
+
         Scanner scanner = new Scanner(System.in);
         char askedLetter = (char) randomLetter();
+        String randomQuestion = getRandomQuestion();
 
-        System.out.println(getRandomQuestion()+askedLetter+"?");
-        String answer = scanner.nextLine();
+        if(randomQuestion == null){
+        } else {
+            System.out.println(randomQuestion+askedLetter+" ?");
+            String answer = scanner.nextLine();
 
-        if(answer.equals("y")){
-            word.forEach((key, value) -> {
-                word.replace(letterCounter, askedLetter);
-             });
-             printOutWord();
-             letterCounter++;
-             askerMethod();
-        } else if(answer.equals("n")) {
-            askerMethod();
+            if(answer.equals("y")){
+                addGuessedLetter(letterCounter, askedLetter);
+                availKeys.remove(Integer.valueOf(letterCounter));
+                printOutWord();
+                letterCounter++;
+                askerMethod();
+            } else if(answer.equals("n")) {
+                askerMethod();
+            } else {
+                System.out.println("Bad answer.");
+            }
         }
+
     }
 
     public static void printOutWord() {
@@ -73,9 +85,12 @@ public class GuesserModule implements Runnable {
     }
 
     protected static String getRandomQuestion() {
-        randomQuestionCounter = (int) Math.floor(Math.random()*wordLength.getLength());
-        letterCounter = randomQuestionCounter;
-        return questionsArrayList.get(randomQuestionCounter).question;
+        if(availKeys.size() > 0){
+            randomQuestionCounter = availKeys.get((int) Math.floor(Math.random() * availKeys.size()));
+            letterCounter = randomQuestionCounter;
+            return questionsArrayList.get(randomQuestionCounter).question;
+        }
+        return null;
     }
 
     protected static int randomLetter() {
@@ -83,6 +98,11 @@ public class GuesserModule implements Runnable {
         int alpha = alphaRandom.nextInt(26) + (char) 'a';
 
         return (char) alpha;
+    }
+
+    protected static void addGuessedLetter(int position, char letter) {
+        if(word.get(position).equals('_'))
+          word.replace(position, letter);
     }
 
     protected HashMap<Integer, Character> getWord() {

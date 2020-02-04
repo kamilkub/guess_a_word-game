@@ -12,11 +12,14 @@ public class ValidationModule implements Runnable {
 
 
     public static void isWordGuessed(HashMap<Integer, Character> hashMap) {
+        long currentMilis = System.currentTimeMillis();
+
         while(true) {
             if(hashMap.containsValue('_'))
                 continue;
             else
                 System.out.println("Your word has been guessed. Try again!");
+                System.out.println("I have guessed your word in " + (System.currentTimeMillis() - currentMilis) + " milliseconds");
                 System.exit(0);
         }
     }
